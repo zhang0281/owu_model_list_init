@@ -5,7 +5,8 @@
 import logging
 import sys
 from pathlib import Path
-from config import LOG_LEVEL, LOG_FORMAT
+from typing import Optional
+from model_processor.config import LOG_LEVEL, LOG_FORMAT
 
 
 class Logger:
@@ -61,7 +62,7 @@ class Logger:
 logger = Logger()
 
 
-def get_logger(name: str = None) -> Logger:
+def get_logger(name: Optional[str] = None) -> Logger:
     """获取日志实例"""
     if name:
         return Logger(name)

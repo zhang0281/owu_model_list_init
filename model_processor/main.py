@@ -14,6 +14,7 @@ from utils.file_handler import FileHandler
 from utils.git_handler import GitHandler
 from utils.icon_matcher import IconMatcher
 from utils.tag_generator import TagGenerator
+from utils.description_generator import DescriptionGenerator
 from utils.logger import get_logger
 
 logger = get_logger("MainProcessor")
@@ -28,12 +29,14 @@ class ModelProcessor:
         self.git_handler = GitHandler(str(self.base_path))
         self.icon_matcher = None  # type: Optional[IconMatcher]
         self.tag_generator = TagGenerator()
+        self.description_generator = DescriptionGenerator()
         
         # 统计信息
         self.stats = {
             'total_models': 0,
             'matched_icons': 0,
             'updated_tags': 0,
+            'generated_descriptions': 0,
             'errors': 0,
             'start_time': time.time(),
             'failed_matches': []  # 存储匹配失败的模型
@@ -120,6 +123,14 @@ class ModelProcessor:
             self.stats['updated_tags'] += 1
             logger.debug(f"更新标签: {len(new_tags)}个")
 
+            # 生成描述（如果没有描述或描述为空）
+            existing_description = model_data.get('meta', {}).get('description')
+            if not existing_description or existing_description.strip() == "" or existing_description is None:
+                new_description = self.description_generator.generate_description(model_data, match_result.icon_name if match_result.matched else "")
+                model_data['meta']['description'] = new_description
+                self.stats['generated_descriptions'] += 1
+                logger.debug(f"生成描述: {new_description[:50]}...")
+
             return model_data
 
         except Exception as e:
@@ -161,8 +172,10 @@ class ModelProcessor:
 总模型数: {self.stats['total_models']}
 成功匹配图标: {self.stats['matched_icons']}
 更新标签: {self.stats['updated_tags']}
+生成描述: {self.stats['generated_descriptions']}
 处理错误: {self.stats['errors']}
-匹配成功率: {(self.stats['matched_icons'] / max(self.stats['total_models'], 1) * 100):.1f}%"""
+匹配成功率: {(self.stats['matched_icons'] / max(self.stats['total_models'], 1) * 100):.1f}%
+描述生成率: {(self.stats['generated_descriptions'] / max(self.stats['total_models'], 1) * 100):.1f}%"""
 
         # 添加匹配失败的模型列表
         if self.stats['failed_matches']:
