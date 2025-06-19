@@ -6,7 +6,10 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional
-from model_processor.config import LOG_LEVEL, LOG_FORMAT
+
+# 添加父目录到Python路径以支持导入config
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import LOG_LEVEL, LOG_FORMAT
 
 
 class Logger:

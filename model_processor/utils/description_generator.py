@@ -3,8 +3,13 @@
 """
 
 import re
+import sys
+from pathlib import Path
 from typing import Dict, Any, List, Optional
-from model_processor.config import VENDOR_MAPPING, FUNCTION_KEYWORDS, VENDOR_TAGS, SPECIAL_RULES
+
+# 添加父目录到Python路径以支持导入config
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import VENDOR_MAPPING, FUNCTION_KEYWORDS, VENDOR_TAGS, SPECIAL_RULES
 from .logger import get_logger
 
 logger = get_logger("DescriptionGenerator")

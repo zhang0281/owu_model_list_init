@@ -3,9 +3,13 @@
 """
 
 import re
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass
+
+# 添加父目录到Python路径以支持导入config
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import VENDOR_MAPPING, ICON_BASE_URL
 from .logger import get_logger
 
