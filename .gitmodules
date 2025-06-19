@@ -1,0 +1,3 @@
+[submodule "lobe-icons"]
+	path = lobe-icons
+	url = https://github.com/lobehub/lobe-icons.git

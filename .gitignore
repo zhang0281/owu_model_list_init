@@ -1,0 +1,3 @@
+*.log
+models*.json
+__pycache__
