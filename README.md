@@ -14,13 +14,16 @@
 
 - [项目概述](#-项目概述)
 - [核心功能](#-核心功能)
-- [项目架构](#-项目架构)
+- [项目架构](#️-项目架构)
 - [快速开始](#-快速开始)
 - [详细使用](#-详细使用)
-- [配置说明](#-配置说明)
+- [配置说明](#️-配置说明)
 - [开发指南](#-开发指南)
 - [故障排除](#-故障排除)
 - [贡献指南](#-贡献指南)
+- [许可证](#-许可证)
+- [联系方式](#-联系方式)
+- [致谢](#-致谢)
 
 ## 🎯 项目概述
 
@@ -70,7 +73,7 @@ OWU模型列表初始化项目是一个专门用于处理AI模型数据的Python
 
 ### 📁 目录结构
 
-```
+```text
 owu_model_list_init/
 ├── README.md                    # 项目文档
 ├── issues/                      # 任务记录和开发日志
@@ -251,32 +254,186 @@ python main.py
 
 ## ⚙️ 配置说明
 
-### 厂商映射配置
+### 📋 配置文件概览
 
-在 `config.py` 中可以配置厂商名称映射：
+所有配置都集中在 `model_processor/config.py` 文件中，包含以下主要配置项：
+
+- **厂商映射配置** - 模型名称到图标文件的映射关系
+- **功能关键词配置** - 用于标签生成的功能关键词
+- **厂商标签配置** - 图标文件到厂商标签的映射
+- **特殊处理规则** - 针对特定模型的特殊处理逻辑
+- **图标路径配置** - 图标文件的本地路径和CDN地址
+- **日志配置** - 日志级别和格式设置
+
+### 🏢 厂商映射配置
+
+厂商映射是核心配置，将模型名称关键词映射到对应的图标文件名：
 
 ```python
 VENDOR_MAPPING = {
+    # OpenAI系列
     'gpt': 'openai',
+    'openai': 'openai',
+    'dall-e': 'dalle',
+    'o1': 'openai',
+    'o3': 'openai',
+    'text-embedding': 'openai',
+    'tts': 'openai',
+
+    # Anthropic系列
     'claude': 'claude',
+    'anthropic': 'anthropic',
+
+    # Google系列
     'gemini': 'gemini',
+    'palm': 'palm',
+    'bard': 'gemini',
+    'imagen': 'gemini',
+    'chat-bison': 'palm',
+    'text-bison': 'palm',
+
+    # 阿里系列
     'qwen': 'qwen',
-    # 添加更多映射...
+    'qvq': 'qwen',
+    'qwq': 'qwen',
+    'tongyi': 'qwen',
+
+    # 其他主流厂商
+    'deepseek': 'deepseek',
+    'grok': 'grok',
+    'llama': 'meta',
+    'mistral': 'mistral',
+    'cohere': 'cohere',
+    # ... 更多映射
 }
 ```
 
-### 图标配置
+### 🏷️ 功能关键词配置
+
+用于根据模型名称和描述自动生成功能标签：
 
 ```python
-ICON_BASE_PATH = "lobe-icons/packages/static-png/light"
-ICON_BASE_URL = "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light"
+FUNCTION_KEYWORDS = {
+    '推理思考': ['thinking', 'reasoning', 'r1', 'o1', 'qwq', 'qvq'],
+    '文生图': ['image', 'generation', 'dall-e', 'dalle', 'imagen'],
+    '图生图': ['image-to-image', 'img2img', 'vision', 'edit'],
+    '语音处理': ['tts', 'speech', 'voice', 'omni', 'whisper'],
+    '视频处理': ['video', 'generation', 'veo'],
+    '多模态': ['vision', 'multimodal', 'vl', 'omni'],
+    '搜索检索': ['search', 'web', 'browse', 'retrieval'],
+    '嵌入向量': ['embedding', 'embed', 'vector'],
+    '免费': ['free', 'fovt', '公益'],
+}
 ```
 
-### 日志配置
+### 🎯 厂商标签配置
+
+将匹配到的图标文件映射为厂商标签：
 
 ```python
-LOG_LEVEL = logging.INFO
+VENDOR_TAGS = {
+    'openai': ['openai'],
+    'claude': ['claude'],
+    'gemini': ['gemini'],
+    'google': ['google'],
+    'palm': ['google'],
+    'qwen': ['qwen'],
+    'deepseek': ['deepseek'],
+    'siliconcloud': ['硅基流动'],
+    # ... 更多厂商标签
+}
+```
+
+### ⚡ 特殊处理规则
+
+针对特定模型的特殊处理逻辑：
+
+```python
+SPECIAL_RULES = {
+    # 硅基流动特殊处理
+    'siliconcloud': {
+        'url_pattern': 'siliconcloud-color.png',
+        'tags': ['硅基流动']
+    },
+
+    # Qwen系列特殊处理
+    'qwen2.5-max': {
+        'tags': ['推理思考']
+    },
+    'qwen2.5-vl': {
+        'tags': ['多模态']
+    },
+
+    # Gemini系列特殊处理
+    'gemini-2.0-flash-preview-image-generation': {
+        'tags': ['文生图']
+    },
+
+    # 免费模型标记
+    'fovt': {
+        'tags': ['免费']
+    },
+    # ... 更多特殊规则
+}
+```
+
+### 🖼️ 图标配置
+
+```python
+# 图标文件路径配置
+ICON_BASE_PATH = "lobe-icons/packages/static-png/light"
+ICON_BASE_URL = "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light"
+
+# 图标优先级：
+# 1. {name}-color.png (彩色图标，优先)
+# 2. {name}.png (标准图标)
+```
+
+### 📝 日志配置
+
+```python
+# 日志级别配置
+LOG_LEVEL = logging.INFO  # DEBUG, INFO, WARNING, ERROR
+
+# 日志格式配置
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+```
+
+### 🔧 自定义配置
+
+#### 添加新厂商
+
+1. 在 `VENDOR_MAPPING` 中添加关键词映射：
+
+```python
+'new_model_keyword': 'new_vendor_icon_name'
+```
+
+2. 在 `VENDOR_TAGS` 中添加标签映射：
+
+```python
+'new_vendor_icon_name': ['厂商标签']
+```
+
+3. 确保 `lobe-icons` 中存在对应的图标文件
+
+#### 添加新功能标签
+
+在 `FUNCTION_KEYWORDS` 中添加新的功能类别：
+
+```python
+'新功能标签': ['keyword1', 'keyword2', 'keyword3']
+```
+
+#### 添加特殊处理规则
+
+在 `SPECIAL_RULES` 中为特定模型添加规则：
+
+```python
+'specific-model-name': {
+    'tags': ['特殊标签1', '特殊标签2'],
+    'url_pattern': 'custom-icon.png'  # 可选
+}
 ```
 
 ## 🔧 开发指南
@@ -498,15 +655,93 @@ def process_models_batch(self, models_data, batch_size=100):
 - `test`: 测试相关
 - `chore`: 构建过程或辅助工具的变动
 
-## 🙏 致谢
+## � 许可证
 
-- [LobeHub](https://github.com/lobehub) - 提供优秀的图标库
-- [Lobe Icons](https://github.com/lobehub/lobe-icons) - AI/LLM模型品牌图标集合
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+### MIT License
+
+```text
+MIT License
+
+Copyright (c) 2025 OWU Model List Init Project
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 📞 联系方式
+
+如有问题或建议，请通过以下方式联系：
+
+### 🐛 问题反馈
+
+- **GitHub Issues**: [创建新Issue](../../issues/new)
+- **Bug报告**: 请使用Issue模板提供详细信息
+- **功能请求**: 欢迎提出新功能建议
+
+### 💬 讨论交流
+
+- **GitHub Discussions**: [参与讨论](../../discussions)
+- **技术交流**: 分享使用经验和最佳实践
+- **问题求助**: 获取社区帮助和支持
+
+### 📧 直接联系
+
+- **项目维护者**: [your-email@example.com](mailto:your-email@example.com)
+- **技术支持**: 复杂问题可直接邮件联系
+- **合作咨询**: 商业合作和定制开发
+
+### 🔗 相关链接
+
+- **项目主页**: [GitHub Repository](https://github.com/your-username/owu_model_list_init)
+- **在线文档**: [项目文档站点](https://your-docs-site.com)
+- **更新日志**: [CHANGELOG.md](CHANGELOG.md)
+
+## �🙏 致谢
+
+### 开源项目
+
+- **[LobeHub](https://github.com/lobehub)** - 提供优秀的AI工具生态
+- **[Lobe Icons](https://github.com/lobehub/lobe-icons)** - AI/LLM模型品牌图标集合
+- **[Python](https://python.org)** - 强大的编程语言支持
+
+### 社区贡献
+
+感谢所有为项目做出贡献的开发者和用户：
+
+- 提交代码和修复bug的贡献者
+- 提供反馈和建议的用户
+- 帮助完善文档的志愿者
+- 推广和分享项目的支持者
+
+### 特别鸣谢
+
+- **AI模型厂商** - 为AI技术发展做出的贡献
+- **开源社区** - 提供的技术支持和最佳实践
+- **用户社区** - 持续的反馈和改进建议
+
+---
 
 <div align="center">
 
 **[⬆ 回到顶部](#owu-模型列表初始化项目)**
 
-Made with ❤️ by AI Assistant
+Made with ❤️ by AI Assistant | Powered by Python & Open Source
 
 </div>
